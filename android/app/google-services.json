@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "930499945660",
+    "project_id": "project-nexus-v0-2",
+    "storage_bucket": "project-nexus-v0-2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:930499945660:android:692c516fd62aaba31e9cb9",
+        "android_client_info": {
+          "package_name": "com.YursenIndustries.nexus"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "930499945660-lr25pp5meoi4echpn9h7ikfleql6bnd4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCEZ8UYotXJ09hCImMIhmIyApfFTVOjF_s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "930499945660-lr25pp5meoi4echpn9h7ikfleql6bnd4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "930499945660-7o107822l9mfhosrcmtankstb2upqrv0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.YursenIndustries.nexus"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
