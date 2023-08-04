@@ -1,10 +1,15 @@
 // ignore_for_file: unnecessary_const, prefer_const_constructors, prefer_const_literals_to_create_immutables, unused_import
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nexus/components/button.dart';
 import 'package:nexus/components/text_field.dart';
+
+import '../components/square_tile.dart';
+import '../services/auth_service.dart';
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
@@ -32,6 +37,84 @@ class _RegisterPageState extends State<RegisterPage> {
     lastnameTextController.dispose();
     ageTextController.dispose();
     super.dispose();
+  }
+
+  Future signUp() async {
+    // show loading circle
+    showDialog(
+      context: context,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    if (passwordConfirmed()) {
+      // create user
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: emailTextController.text.trim(),
+        password: passwordTextController.text.trim(),
+      );
+
+      if (passwordConfirmed()) {
+        try {
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+              email: emailTextController.text.trim(),
+              password: passwordTextController.text.trim());
+        } on FirebaseAuthException catch (e) {
+          //pop loading circle
+          Navigator.pop(context);
+          // show error to user
+          displayMessage(e.code);
+        }
+      } else {
+        // pop loading circle
+        Navigator.pop(context);
+        // show error to user
+        displayMessage("Passwords don't match!");
+        return;
+      }
+
+      // add user details
+      addUsersDetails(
+        firstnameTextController.text.trim(),
+        lastnameTextController.text.trim(),
+        passwordTextController.text.trim(),
+        emailTextController.text.trim(),
+        int.parse(
+          ageTextController.text.trim(),
+        ),
+      );
+    }
+  }
+
+  // display a dialog message
+  void displayMessage(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(message),
+      ),
+    );
+  }
+
+  bool passwordConfirmed() {
+    if (passwordTextController.text.trim() ==
+        confirmpasswordTextController.text.trim()) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future addUsersDetails(String firstName, String lastName, String password,
+      String email, int age) async {
+    await FirebaseFirestore.instance.collection('users').add({
+      'first name': firstName,
+      'last name': lastName,
+      'password': password,
+      'email': email,
+      'age': age,
+    });
   }
 
   // ignore: annotate_overrides
@@ -115,11 +198,65 @@ class _RegisterPageState extends State<RegisterPage> {
 
                   // sign in button
                   MyButton(
-                    onTap: widget.onTap,
+                    onTap: signUp,
                     text: 'Sign Up',
                   ),
                   const SizedBox(height: 0),
 
+                  const SizedBox(height: 50),
+                  // or continue with
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Divider(
+                            thickness: 0.5,
+                            color: Colors.grey[400],
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 7,
+                        ),
+                        Text('Or continue with',
+                            style: TextStyle(
+                              color: Colors.grey[700],
+                            )),
+                        const SizedBox(
+                          width: 7,
+                        ),
+                        Expanded(
+                          child: Divider(
+                            thickness: 0.5,
+                            color: Colors.grey[400],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 50),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // google button
+                      SquareTile(
+                        onTap: () => AuthService().signInWithGoogle(),
+                        imagePath: 'assets/images/google.png',
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      // apple button
+                      SquareTile(
+                        onTap: () {},
+                        imagePath: 'assets/images/apple.png',
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 50),
                   // go to register page
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -139,7 +276,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       ),
                       const SizedBox(height: 100),
                     ],
-                  )
+                  ),
                 ],
               ),
             ),

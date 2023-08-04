@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:nexus/components/button.dart';
 import 'package:nexus/components/square_tile.dart';
 import 'package:nexus/components/text_field.dart';
+import 'package:nexus/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   final Function()? onTap;
@@ -21,9 +22,35 @@ class _LoginPageState extends State<LoginPage> {
   final passwordTextController = TextEditingController();
 
   Future signIn() async {
-    await FirebaseAuth.instance.signInWithEmailAndPassword(
-      email: emailTextController.text.trim(),
-      password: passwordTextController.text.trim(),
+    //show loading circle
+    showDialog(
+      context: context,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailTextController.text.trim(),
+        password: passwordTextController.text.trim(),
+      );
+
+      // pop loading circle
+      if (context.mounted) Navigator.pop(context);
+    } on FirebaseAuthException catch (e) {
+      // pop loading circle
+      Navigator.pop(context);
+      displayMessage(e.code);
+    }
+  }
+
+  // display a dialog message
+  void displayMessage(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(message),
+      ),
     );
   }
 
@@ -93,10 +120,16 @@ class _LoginPageState extends State<LoginPage> {
                             color: Colors.grey[400],
                           ),
                         ),
+                        const SizedBox(
+                          width: 7,
+                        ),
                         Text('Or continue with',
                             style: TextStyle(
                               color: Colors.grey[700],
                             )),
+                        const SizedBox(
+                          width: 7,
+                        ),
                         Expanded(
                           child: Divider(
                             thickness: 0.5,
@@ -112,12 +145,18 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       // google button
-                      SquareTile(imagePath: 'assets/images/google.png'),
+                      SquareTile(
+                        onTap: () => AuthService().signInWithGoogle(),
+                        imagePath: 'assets/images/google.png',
+                      ),
                       const SizedBox(
                         width: 10,
                       ),
                       // apple button
-                      SquareTile(imagePath: 'assets/images/apple.png')
+                      SquareTile(
+                        onTap: () {},
+                        imagePath: 'assets/images/apple.png',
+                      ),
                     ],
                   ),
 
